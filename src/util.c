@@ -197,6 +197,18 @@ int is_binary(const void* buf, const int buf_len) {
                     continue;
                 }
             }
+            /* EUC-JP detection */
+            if (buf_c[i] == 142) {
+              i++;
+              if (buf_c[i] > 160 && buf_c[i] < 224) {
+                continue;
+              }
+            } else if (buf_c[i] > 160 && buf_c[i] < 255) {
+              i++;
+              if(buf_c[i] > 160 && buf_c[i] < 255) {
+                continue;
+              }
+            }
             suspicious_bytes++;
             /* Disk IO is so slow that it's worthwhile to do this calculation after every suspicious byte. */
             /* This is true even on a 1.6Ghz Atom with an Intel 320 SSD. */
