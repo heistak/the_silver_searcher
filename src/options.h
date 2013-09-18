@@ -33,6 +33,7 @@ typedef struct {
     int column;
     int context;
     int follow_symlinks;
+    char *from_code;
     int invert_match;
     int literal;
     int literal_starts_wordchar;
@@ -56,6 +57,7 @@ typedef struct {
     int search_stream; /* true if tail -F blah | ag */
     int stats;
     ino_t stdout_inode;
+    char *to_code;
     char *query;
     int query_len;
     char *pager;

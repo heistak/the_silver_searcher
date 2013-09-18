@@ -59,6 +59,7 @@ Search options:\n\
 -D --debug              Ridiculous debugging (probably not useful)\n\
 --depth NUM             Search up to NUM directories deep (Default: 25)\n\
 -f --follow             Follow symlinks\n\
+-F --from-code          Encoding of the input\n\
 --[no]group             Same as --[no]break --[no]heading\n\
 -g PATTERN              Print filenames matching PATTERN\n\
 -G, --file-search-regex PATTERN Limit search to filenames matching PATTERN\n\
@@ -84,6 +85,7 @@ Search options:\n\
 --search-binary         Search binary files for matches\n\
 --stats                 Print stats (files scanned, time taken, etc.)\n\
 -t --all-text           Search all text files (doesn't include hidden files)\n\
+-T --to-code            Encoding of the output\n\
 -u --unrestricted       Search all files (ignore .agignore, .gitignore, etc.;\n\
                         searches binary and hidden files as well)\n\
 -U --skip-vcs-ignores   Ignore VCS ignore files\n\
@@ -115,6 +117,8 @@ void init_options() {
     opts.color_path = ag_strdup(color_path);
     opts.color_match = ag_strdup(color_match);
     opts.color_line_number = ag_strdup(color_line_number);
+    strtok(getenv("LANG"), ".");
+    opts.to_code = strtok(NULL, ".");
 }
 
 void cleanup_options() {
@@ -255,7 +259,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         opts.stdout_inode = statbuf.st_ino;
     }
 
-    while ((ch = getopt_long(argc, argv, "A:aB:C:DG:g:fhiLlm:np:QRrSsvVtuUwz", longopts, &opt_index)) != -1) {
+    while ((ch = getopt_long(argc, argv, "A:aB:C:DG:g:fF:hiLlm:np:QRrSsvVtT:uUwz", longopts, &opt_index)) != -1) {
         switch (ch) {
             case 'A':
                 opts.after = atoi(optarg);
@@ -284,6 +288,9 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
                 break;
             case 'f':
                 opts.follow_symlinks = 1;
+                break;
+            case 'F':
+                opts.from_code = optarg;
                 break;
             case 'g':
                 needs_query = 0;
@@ -328,6 +335,9 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
                 break;
             case 't':
                 opts.search_all_files = 1;
+                break;
+            case 'T':
+                opts.to_code = optarg;
                 break;
             case 'u':
                 opts.search_binary_files = 1;

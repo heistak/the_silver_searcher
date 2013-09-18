@@ -1,7 +1,7 @@
 #include "search.h"
 #include "scandir.h"
 
-void search_buf(const char *buf, const int buf_len,
+void search_buf(const char *buf, int buf_len,
                 const char *dir_full_path) {
     int binary = -1;  /* 1 = yes, 0 = no, -1 = don't know */
     int buf_offset = 0;
@@ -14,6 +14,25 @@ void search_buf(const char *buf, const int buf_len,
             log_debug("File %s is binary. Skipping...", dir_full_path);
             return;
         }
+    }
+
+    int     original_len = strlen(buf);
+    int     encoded_len  = original_len * 1.5;
+    char    str_in[original_len];
+    char    str_out[encoded_len];
+    char    *ptr_in  = str_in;
+    char    *ptr_out = str_out;
+    size_t  len_in  = (size_t) original_len;
+    size_t  len_out = (size_t) encoded_len;
+    if (opts.from_code != NULL) {
+      iconv_t icd;
+      strcpy(str_in, buf);
+      icd = iconv_open(opts.to_code, opts.from_code);
+      iconv(icd, &ptr_in, &len_in, &ptr_out, &len_out);
+      iconv_close(icd);
+      strcpy(str_in, buf);
+      buf = str_out;
+      buf_len = encoded_len;
     }
 
     int matches_len = 0;
