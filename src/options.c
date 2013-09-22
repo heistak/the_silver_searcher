@@ -61,7 +61,6 @@ Search options:\n\
 -e --encoding-auto-detection\n\
                         Encoding auto detection\n\
 -f --follow             Follow symlinks\n\
--F --from-code          Encoding of the input\n\
 --[no]group             Same as --[no]break --[no]heading\n\
 -g PATTERN              Print filenames matching PATTERN\n\
 -G, --file-search-regex PATTERN Limit search to filenames matching PATTERN\n\
@@ -263,7 +262,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         opts.stdout_inode = statbuf.st_ino;
     }
 
-    while ((ch = getopt_long(argc, argv, "A:aB:C:DeG:g:fF:hiLlm:np:QRrSsvVtT:uUwz", longopts, &opt_index)) != -1) {
+    while ((ch = getopt_long(argc, argv, "A:aB:C:DeG:g:fhiLlm:np:QRrSsvVtT:uUwz", longopts, &opt_index)) != -1) {
         switch (ch) {
             case 'A':
                 opts.after = atoi(optarg);
@@ -295,9 +294,6 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
                 break;
             case 'f':
                 opts.follow_symlinks = 1;
-                break;
-            case 'F':
-                opts.from_code = optarg;
                 break;
             case 'g':
                 needs_query = 0;

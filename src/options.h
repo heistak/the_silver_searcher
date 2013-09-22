@@ -34,7 +34,6 @@ typedef struct {
     int context;
     int encoding_auto_detection;
     int follow_symlinks;
-    char *from_code;
     int invert_match;
     int literal;
     int literal_starts_wordchar;
