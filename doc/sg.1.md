@@ -1,9 +1,9 @@
-ag(1) -- The Silver Searcher. Like ack, but faster.
+sg(1) -- The Silver Searcher. Like ack, but faster. Supports EUC-JP and Shift-JIS.
 =============================================
 
 ## SYNOPSIS
 
-`ag` [<options>] PATTERN [PATH]
+`sg` [<options>] PATTERN [PATH]
 
 ## DESCRIPTION
 
@@ -97,10 +97,10 @@ Use the `-t` option to search all text files, `-a` to search all files, and `-u`
 
 ## EXAMPLES
 
-`ag printf`:
+`sg printf`:
   Find matches for "printf" in the current directory.
 
-`ag foo /bar/`:
+`sg foo /bar/`:
   Find matches for "foo" in path /bar/.
 
 ## SEE ALSO

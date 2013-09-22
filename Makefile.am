@@ -4,7 +4,7 @@ bin_PROGRAMS = sg
 sg_SOURCES = src/ignore.c src/ignore.h src/log.c src/log.h src/options.c src/options.h src/print.c src/print.h src/scandir.c src/scandir.h src/search.c src/search.h src/util.c src/util.h src/decompress.c src/decompress.h src/uthash.h src/main.c
 sg_LDADD = ${PCRE_LIBS} ${LZMA_LIBS} -lz -lpthread -liconv
 
-dist_man_MANS = doc/ag.1
+dist_man_MANS = doc/sg.1
 
 bashcompdir = $(pkgdatadir)/completions
 dist_bashcomp_DATA = sg.bashcomp.sh
