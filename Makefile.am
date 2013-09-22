@@ -7,7 +7,7 @@ sg_LDADD = ${PCRE_LIBS} ${LZMA_LIBS} -lz -lpthread -liconv
 dist_man_MANS = doc/ag.1
 
 bashcompdir = $(pkgdatadir)/completions
-dist_bashcomp_DATA = ag.bashcomp.sh
+dist_bashcomp_DATA = sg.bashcomp.sh
 
 # Uncomment this line to output gprof profiling info. This hurts performance.
 #CFLAGS=-pg

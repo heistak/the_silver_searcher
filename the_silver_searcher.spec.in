@@ -50,7 +50,7 @@ make %{?_smp_mflags}
 rm -rf ${RPM_BUILD_ROOT}
 make install DESTDIR=${RPM_BUILD_ROOT}
 mkdir -p ${RPM_BUILD_ROOT}%{_bashcompdir}
-install -m 644 ag.bashcomp.sh ${RPM_BUILD_ROOT}%{_bashcompdir}
+install -m 644 sg.bashcomp.sh ${RPM_BUILD_ROOT}%{_bashcompdir}
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -60,8 +60,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(-,root,root,-)
 %{_bindir}/*
 %{_mandir}/*
-%config %{_bashcompdir}/ag.bashcomp.sh
-%config %{_datadir}/%{name}/completions/ag.bashcomp.sh
+%config %{_bashcompdir}/sg.bashcomp.sh
+%config %{_datadir}/%{name}/completions/sg.bashcomp.sh
 
 
 %changelog
