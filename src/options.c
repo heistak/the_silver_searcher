@@ -33,12 +33,12 @@ const char *color_path = "\e[1;32m";   /* bold green */
 
 /* TODO: try to obey out_fd? */
 void usage() {
-    printf("Usage: ag [OPTIONS] PATTERN [PATH]\n\
+    printf("Usage: sg [OPTIONS] PATTERN [PATH]\n\
 \n\
 Recursively search for PATTERN in PATH.\n\
 Like grep or ack, but faster.\n\
 \n\
-Example: ag -i foo /bar/\n\
+Example: sg -i foo /bar/\n\
 \n\
 Search options:\n\
 \n\
@@ -96,7 +96,7 @@ Search options:\n\
 }
 
 void print_version() {
-    printf("ag version %s\n", PACKAGE_VERSION);
+    printf("sg version %s\n", PACKAGE_VERSION);
 }
 
 void init_options() {
