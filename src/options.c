@@ -58,8 +58,6 @@ Search options:\n\
 -C --context [LINES]    Print lines before and after matches (Default: 2)\n\
 -D --debug              Ridiculous debugging (probably not useful)\n\
 --depth NUM             Search up to NUM directories deep (Default: 25)\n\
--e --encoding-auto-detection\n\
-                        Encoding auto detection\n\
 -f --follow             Follow symlinks\n\
 --[no]group             Same as --[no]break --[no]heading\n\
 -g PATTERN              Print filenames matching PATTERN\n\
@@ -118,7 +116,6 @@ void init_options() {
     opts.color_path = ag_strdup(color_path);
     opts.color_match = ag_strdup(color_match);
     opts.color_line_number = ag_strdup(color_line_number);
-    opts.encoding_auto_detection = FALSE;
     strtok(getenv("LANG"), ".");
     opts.to_code = strtok(NULL, ".");
 }
@@ -187,7 +184,6 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         { "context", optional_argument, NULL, 'C' },
         { "debug", no_argument, NULL, 'D' },
         { "depth", required_argument, NULL, 0 },
-        { "encoding-auto-detection", no_argument, NULL, 0 },
         { "file-search-regex", required_argument, NULL, 'G' },
         { "files-with-matches", no_argument, NULL, 'l' },
         { "files-without-matches", no_argument, NULL, 'L' },
@@ -262,7 +258,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         opts.stdout_inode = statbuf.st_ino;
     }
 
-    while ((ch = getopt_long(argc, argv, "A:aB:C:DeG:g:fhiLlm:np:QRrSsvVtT:uUwz", longopts, &opt_index)) != -1) {
+    while ((ch = getopt_long(argc, argv, "A:aB:C:DG:g:fhiLlm:np:QRrSsvVtT:uUwz", longopts, &opt_index)) != -1) {
         switch (ch) {
             case 'A':
                 opts.after = atoi(optarg);
@@ -288,9 +284,6 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
                 break;
             case 'D':
                 set_log_level(LOG_LEVEL_DEBUG);
-                break;
-            case 'e':
-                opts.encoding_auto_detection = 1;
                 break;
             case 'f':
                 opts.follow_symlinks = 1;
@@ -368,9 +361,6 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
                     break;
                 } else if (strcmp(longopts[opt_index].name, "depth") == 0) {
                     opts.max_search_depth = atoi(optarg);
-                    break;
-                } else if (strcmp(longopts[opt_index].name, "encoding-auto-detection") == 0) {
-                    opts.encoding_auto_detection = TRUE;
                     break;
                 } else if (strcmp(longopts[opt_index].name, "no-numbers") == 0) {
                     opts.print_line_numbers = FALSE;

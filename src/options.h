@@ -32,7 +32,6 @@ typedef struct {
     char *color_path;
     int column;
     int context;
-    int encoding_auto_detection;
     int follow_symlinks;
     int invert_match;
     int literal;

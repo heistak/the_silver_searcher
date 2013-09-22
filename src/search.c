@@ -27,11 +27,7 @@ void search_buf(const char *buf, int buf_len,
     char    *ptr_out = str_out;
     size_t  len_in  = (size_t) original_len;
     size_t  len_out = (size_t) encoded_len;
-    int result = 0;
-    result = strcmp(opts.to_code, encode);
-    if (opts.encoding_auto_detection
-        && encode != ASCII
-        && encode != BINNARY
+    if (encode != ASCII && encode != BINNARY
         && strcmp(opts.to_code, encode)) {
       log_debug("Convert encode from %s to %s.", encode, opts.to_code);
       iconv_t icd;
