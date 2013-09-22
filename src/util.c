@@ -188,13 +188,13 @@ char* get_encode(const void* buf, const int buf_len) {
             /* UTF-8 detection */
             if (buf_c[i] > 191 && buf_c[i] < 224 && i + 1 < total_bytes) {
                 i++;
-                if (buf_c[i] < 192) {
+                if (buf_c[i] > 127 && buf_c[i] < 192) {
                     likely_utf8++;
                     continue;
                 }
-            } else if (buf_c[i] > 223 && buf_c[i] < 239 && i + 2 < total_bytes) {
+            } else if (buf_c[i] > 223 && buf_c[i] < 240 && i + 2 < total_bytes) {
                 i++;
-                if (buf_c[i] < 192 && buf_c[i + 1] < 192) {
+                if (buf_c[i] > 127 && buf_c[i] < 192 && buf_c[i + 1] > 127 && buf_c[i + 1] < 192) {
                     i++;
                     likely_utf8++;
                     continue;
