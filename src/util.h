@@ -22,6 +22,12 @@ FILE *out_fd;
 #define FALSE 0
 #endif
 
+#define BINNARY  "binary"
+#define ASCII    "ascii"
+#define UTF8     "UTF-8"
+#define EUCJP    "EUC-JP"
+#define SHIFTJIS "SHIFT-JIS"
+
 void *ag_malloc(size_t size);
 void *ag_realloc(void *ptr, size_t size);
 void *ag_calloc(size_t nelem, size_t elsize);
@@ -65,6 +71,7 @@ void compile_study(pcre **re, pcre_extra **re_extra, char *q, const int pcre_opt
 void* decompress(const ag_compression_type zip_type, const void* buf, const int buf_len, const char* dir_full_path, int* new_buf_len);
 ag_compression_type is_zipped(const void* buf, const int buf_len);
 
+char* get_encode(const void* buf, const int buf_len);
 int is_binary(const void* buf, const int buf_len);
 int is_regex(const char* query);
 int is_fnmatch(const char* filename);

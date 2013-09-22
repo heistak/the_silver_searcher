@@ -164,36 +164,39 @@ void compile_study(pcre **re, pcre_extra **re_extra, char *q, const int pcre_opt
 }
 
 /* This function is very hot. It's called on every file. */
-int is_binary(const void* buf, const int buf_len) {
+char* get_encode(const void* buf, const int buf_len) {
     int suspicious_bytes = 0;
+    int likely_utf8 = 0, likely_eucjp = 0, likely_shiftjis = 0;
     int total_bytes = buf_len > 512 ? 512 : buf_len;
     const unsigned char *buf_c = buf;
     int i;
 
     if (buf_len == 0) {
-        return 0;
+        return ASCII;
     }
 
     if (buf_len >= 3 && buf_c[0] == 0xEF && buf_c[1] == 0xBB && buf_c[2] == 0xBF) {
         /* UTF-8 BOM. This isn't binary. */
-        return 0;
+        return UTF8;
     }
 
     for (i = 0; i < total_bytes; i++) {
         if (buf_c[i] == '\0') {
             /* NULL char. It's binary */
-            return 1;
+            return BINNARY;
         } else if ((buf_c[i] < 7 || buf_c[i] > 14) && (buf_c[i] < 32 || buf_c[i] > 127)) {
             /* UTF-8 detection */
             if (buf_c[i] > 191 && buf_c[i] < 224 && i + 1 < total_bytes) {
                 i++;
                 if (buf_c[i] < 192) {
+                    likely_utf8++;
                     continue;
                 }
             } else if (buf_c[i] > 223 && buf_c[i] < 239 && i + 2 < total_bytes) {
                 i++;
                 if (buf_c[i] < 192 && buf_c[i + 1] < 192) {
                     i++;
+                    likely_utf8++;
                     continue;
                 }
             }
@@ -201,20 +204,24 @@ int is_binary(const void* buf, const int buf_len) {
             if (buf_c[i] == 142) {
               i++;
               if (buf_c[i] > 160 && buf_c[i] < 224) {
+                likely_eucjp++;
                 continue;
               }
             } else if (buf_c[i] > 160 && buf_c[i] < 255) {
               i++;
               if(buf_c[i] > 160 && buf_c[i] < 255) {
+                likely_eucjp++;
                 continue;
               }
             }
             /* Shift-JIS detection */
             if (buf_c[i] > 160 && buf_c[i] < 224) {
+              likely_shiftjis++;
               continue;
             } else if ((buf_c[i] > 128 && buf_c[i] < 160) || (buf_c[i] > 223 && buf_c[i] < 240)) {
               i++;
               if ((buf_c[i] > 63 && buf_c[i] < 127) || (buf_c[i] > 127 && buf_c[i] < 253)) {
+                likely_shiftjis++;
                 continue;
               }
             }
@@ -223,15 +230,34 @@ int is_binary(const void* buf, const int buf_len) {
             /* This is true even on a 1.6Ghz Atom with an Intel 320 SSD. */
             /* Read at least 32 bytes before making a decision */
             if (i >= 32 && (suspicious_bytes * 100) / total_bytes > 10) {
-                return 1;
+                return BINNARY;
             }
         }
     }
     if ((suspicious_bytes * 100) / total_bytes > 10) {
-        return 1;
+        return BINNARY;
     }
 
-    return 0;
+    log_debug("Detected points[utf8/eucjp/shiftjis] is %d/%d/%d.", likely_utf8, likely_eucjp, likely_shiftjis);
+
+    if (likely_utf8 == 0 && likely_eucjp == 0 && likely_shiftjis == 0) {
+        return ASCII;
+    } else if (likely_utf8 >= likely_eucjp && likely_utf8 >= likely_shiftjis) {
+        return UTF8;
+    } else if (likely_eucjp >= likely_utf8 && likely_eucjp >= likely_shiftjis) {
+        return EUCJP;
+    } else if (likely_shiftjis >= likely_utf8 && likely_shiftjis >= likely_eucjp) {
+        return SHIFTJIS;
+    }
+
+    return ASCII;
+}
+
+/* This function is very hot. It's called on every file. */
+int is_binary(const void* buf, const int buf_len) {
+    char* encode = BINNARY;
+    encode = get_encode(buf, buf_len);
+    return (encode == BINNARY) ? 1 : 0;
 }
 
 int is_regex(const char* query) {

@@ -3,13 +3,16 @@
 
 void search_buf(const char *buf, int buf_len,
                 const char *dir_full_path) {
-    int binary = -1;  /* 1 = yes, 0 = no, -1 = don't know */
+    int   binary = -1;  /* 1 = yes, 0 = no, -1 = don't know */
+    char* encode = ASCII;
     int buf_offset = 0;
 
     if (opts.search_stream) {
         binary = 0;
     } else if (!opts.search_binary_files) {
-        binary = is_binary((void*) buf, buf_len);
+        encode = get_encode((void*) buf, buf_len);
+        binary = (encode == BINNARY) ? 1 : 0;
+        log_debug("Auto detected encode is %s.", encode);
         if (binary) {
             log_debug("File %s is binary. Skipping...", dir_full_path);
             return;
@@ -24,10 +27,16 @@ void search_buf(const char *buf, int buf_len,
     char    *ptr_out = str_out;
     size_t  len_in  = (size_t) original_len;
     size_t  len_out = (size_t) encoded_len;
-    if (opts.from_code != NULL) {
+    int result = 0;
+    result = strcmp(opts.to_code, encode);
+    if (opts.encoding_auto_detection
+        && encode != ASCII
+        && encode != BINNARY
+        && strcmp(opts.to_code, encode)) {
+      log_debug("Convert encode from %s to %s.", encode, opts.to_code);
       iconv_t icd;
       strcpy(str_in, buf);
-      icd = iconv_open(opts.to_code, opts.from_code);
+      icd = iconv_open(opts.to_code, encode);
       iconv(icd, &ptr_in, &len_in, &ptr_out, &len_out);
       iconv_close(icd);
       strcpy(str_in, buf);
