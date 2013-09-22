@@ -1,5 +1,5 @@
-have ag &&
-_ag() {
+have sg &&
+_sg() {
   local lngopt shtopt split=false
   local cur prev
 
@@ -112,4 +112,4 @@ _ag() {
           return 0;;
   esac
 } &&
-complete -F _ag ${nospace} ag
+complete -F _sg ${nospace} sg
