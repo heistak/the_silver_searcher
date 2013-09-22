@@ -5,7 +5,7 @@
 .dirstamp
 .DS_Store
 aclocal.m4
-ag
+sg
 autom4te.cache
 cachegrind.out.*
 callgrind.out.*
