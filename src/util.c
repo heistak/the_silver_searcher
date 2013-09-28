@@ -180,6 +180,11 @@ char* get_encode(const void* buf, const int buf_len) {
         return UTF8;
     }
 
+    if (buf_len >= 5 && buf_c[0] == 0x25 && buf_c[1] == 0x50 && buf_c[2] == 0x44 && buf_c[3] == 0x46 && buf_c[4] == 0x2D) {
+       /*  %PDF-. This is binary. */
+      return BINNARY;
+    }
+
     for (i = 0; i < total_bytes; i++) {
         if (buf_c[i] == '\0') {
             /* NULL char. It's binary */
