@@ -19,23 +19,22 @@ void search_buf(const char *buf, int buf_len,
         }
     }
 
-    int     original_len = strlen(buf);
-    int     encoded_len  = original_len * 1.5;
-    char    str_in[original_len];
-    char    str_out[encoded_len];
-    char    *ptr_in  = str_in;
-    char    *ptr_out = str_out;
+    int     original_len = buf_len;
+    int     encoded_len  = original_len;
+    char    str_in[buf_len], *ptr_in = str_in;
+    char    str_out[buf_len], *ptr_out = str_out;
     size_t  len_in  = (size_t) original_len;
     size_t  len_out = (size_t) encoded_len;
+
+    ptr_in = ag_strndup(buf, len_in);
+
     if (encode != ASCII && encode != BINNARY
         && strcmp(opts.to_code, encode)) {
       log_debug("Convert encode from %s to %s.", encode, opts.to_code);
       iconv_t icd;
-      strcpy(str_in, buf);
       icd = iconv_open(opts.to_code, encode);
       iconv(icd, &ptr_in, &len_in, &ptr_out, &len_out);
       iconv_close(icd);
-      strcpy(str_in, buf);
       buf = str_out;
       buf_len = encoded_len;
     }
