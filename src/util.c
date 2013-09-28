@@ -191,7 +191,7 @@ char* get_encode(const void* buf, const int buf_len) {
             return BINNARY;
         } else if ((buf_c[i] < 7 || buf_c[i] > 14) && (buf_c[i] < 32 || buf_c[i] > 127)) {
             /* UTF-8 detection */
-            if (buf_c[i] > 191 && buf_c[i] < 224 && i + 1 < total_bytes) {
+            if (buf_c[i] > 193 && buf_c[i] < 224 && i + 1 < total_bytes) {
                 i++;
                 if (buf_c[i] > 127 && buf_c[i] < 192) {
                     likely_utf8++;
