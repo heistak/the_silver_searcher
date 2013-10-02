@@ -20,8 +20,9 @@ void search_buf(const char *buf, int buf_len,
         }
     }
 
-    int     encoded_len  = buf_len;
+    int     encoded_len  = buf_len * 1.5;
     char    str_out[encoded_len], *ptr_out = str_out;
+    memset(str_out, '\0', encoded_len);
     size_t  size_in  = (size_t) buf_len;
     size_t  size_out = (size_t) encoded_len;
 
@@ -33,9 +34,14 @@ void search_buf(const char *buf, int buf_len,
       iconv_t icd;
       icd = iconv_open(opts.to_code, encode);
       if (icd != (iconv_t)-1) {
-        iconv(icd, &encoded_buf, &size_in, &ptr_out, &size_out);
-        encoded_buf = str_out;
-        buf_len = strlen(str_out);
+        size_t ret;
+        ret = iconv(icd, &encoded_buf, &size_in, &ptr_out, &size_out);
+        if (ret == (size_t)-1) {
+          log_debug("iconv error is %d = %s.", errno, strerror( errno ));
+        } else {
+          encoded_buf = str_out;
+          buf_len = strlen(str_out);
+        }
         iconv_close(icd);
       }
     }
