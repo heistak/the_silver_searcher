@@ -6,6 +6,7 @@ void search_buf(const char *buf, int buf_len,
     int   binary = -1;  /* 1 = yes, 0 = no, -1 = don't know */
     char* encode = ASCII;
     int buf_offset = 0;
+    char *encoded_buf = NULL;
 
     if (opts.search_stream) {
         binary = 0;
@@ -19,24 +20,24 @@ void search_buf(const char *buf, int buf_len,
         }
     }
 
-    int     original_len = buf_len;
-    int     encoded_len  = original_len;
-    char    str_in[buf_len], *ptr_in = str_in;
-    char    str_out[buf_len], *ptr_out = str_out;
-    size_t  len_in  = (size_t) original_len;
-    size_t  len_out = (size_t) encoded_len;
+    int     encoded_len  = buf_len;
+    char    str_out[encoded_len], *ptr_out = str_out;
+    size_t  size_in  = (size_t) buf_len;
+    size_t  size_out = (size_t) encoded_len;
 
-    ptr_in = ag_strndup(buf, len_in);
+    encoded_buf = ag_strndup(buf, size_in);
 
     if (encode != ASCII && encode != BINNARY
         && strcmp(opts.to_code, encode)) {
       log_debug("Convert encode from %s to %s.", encode, opts.to_code);
       iconv_t icd;
       icd = iconv_open(opts.to_code, encode);
-      iconv(icd, &ptr_in, &len_in, &ptr_out, &len_out);
-      iconv_close(icd);
-      buf = str_out;
-      buf_len = encoded_len;
+      if (icd != (iconv_t)-1) {
+        iconv(icd, &encoded_buf, &size_in, &ptr_out, &size_out);
+        encoded_buf = str_out;
+        buf_len = strlen(str_out);
+        iconv_close(icd);
+      }
     }
 
     int matches_len = 0;
@@ -66,7 +67,7 @@ void search_buf(const char *buf, int buf_len,
         matches[0].end = buf_len;
         matches_len = 1;
     } else if (opts.literal) {
-        const char *match_ptr = buf;
+        const char *match_ptr = encoded_buf;
         strncmp_fp ag_strnstr_fp = get_strstr(opts);
 
         while (buf_offset < buf_len) {
@@ -82,17 +83,17 @@ void search_buf(const char *buf, int buf_len,
                 /* Check whether both start and end of the match lie on a word
                  * boundary
                  */
-                if ((start == buf ||
+                if ((start == encoded_buf ||
                      is_wordchar(*(start - 1)) != opts.literal_starts_wordchar)
                     &&
-                    (end == buf + buf_len ||
+                    (end == encoded_buf + buf_len ||
                      is_wordchar(*end) != opts.literal_ends_wordchar))
                 {
                     /* It's a match */
                 } else {
                     /* It's not a match */
                     match_ptr += opts.query_len;
-                    buf_offset = end - buf;
+                    buf_offset = end - encoded_buf;
                     continue;
                 }
             }
@@ -103,7 +104,7 @@ void search_buf(const char *buf, int buf_len,
                 matches = ag_realloc(matches, matches_size * sizeof(match));
             }
 
-            matches[matches_len].start = match_ptr - buf;
+            matches[matches_len].start = match_ptr - encoded_buf;
             matches[matches_len].end = matches[matches_len].start + opts.query_len;
             buf_offset = matches[matches_len].end;
             log_debug("Match found. File %s, offset %i bytes.", dir_full_path, matches[matches_len].start);
@@ -119,7 +120,7 @@ void search_buf(const char *buf, int buf_len,
         int rc;
         int offset_vector[3];
         while (buf_offset < buf_len &&
-              (rc = pcre_exec(opts.re, opts.re_extra, buf, buf_len, buf_offset, 0, offset_vector, 3)) >= 0) {
+              (rc = pcre_exec(opts.re, opts.re_extra, encoded_buf, buf_len, buf_offset, 0, offset_vector, 3)) >= 0) {
             log_debug("Regex match found. File %s, offset %i bytes.", dir_full_path, offset_vector[0]);
             buf_offset = offset_vector[1];
 
@@ -155,7 +156,7 @@ void search_buf(const char *buf, int buf_len,
 
     if (matches_len > 0) {
         if (binary == -1 && !opts.print_filename_only) {
-            binary = is_binary((void*) buf, buf_len);
+            binary = is_binary((void*) encoded_buf, buf_len);
         }
         pthread_mutex_lock(&print_mtx);
         if (opts.print_filename_only) {
@@ -163,7 +164,7 @@ void search_buf(const char *buf, int buf_len,
         } else if (binary) {
             print_binary_file_matches(dir_full_path);
         } else {
-            print_file_matches(dir_full_path, buf, buf_len, matches, matches_len);
+            print_file_matches(dir_full_path, encoded_buf, buf_len, matches, matches_len);
         }
         pthread_mutex_unlock(&print_mtx);
     } else {
