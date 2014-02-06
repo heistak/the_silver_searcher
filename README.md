@@ -6,6 +6,7 @@ A code searching tool similar to `ack`, with a focus on speed.
   <img alt="Floobits status" width="80" height="40" src="https://floobits.com/r/ggreer/the_silver_searcher.png" />
 </a>
 
+Forked with Makefile.am edited for building in Debian/Ubuntu.
 
 ## What's so great about Ag? ##
 
